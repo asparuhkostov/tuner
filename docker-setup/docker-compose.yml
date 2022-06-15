@@ -1,0 +1,63 @@
+version: "3.9"
+
+volumes:
+  price-fetching-service:
+  web-app:
+
+services:
+  database:
+    image: postgres:14.1-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - 5432:5432
+    healthcheck:
+      test: "exit 0"
+      interval: 30s
+      timeout: 15s
+      retries: 3
+      start_period: 5s
+
+  price-fetching-service:
+    build: ../price-fetching-service
+    restart: always
+    environment:
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_HOST: database
+      DISCOGS_API_KEY: YOUR_API_KEY_HERE
+      DISCOGS_API_SECRET: YOUR_SECRET_HERE
+    depends_on:
+      database:
+        condition: service_healthy
+    volumes:
+      - ../price-fetching-service:/home/app
+    working_dir: /home/app
+    command: sh -c "npm install && npm run migrate && npm run start"
+    ports:
+      - 5000:5000
+    healthcheck:
+      test: "exit 0"
+      interval: 30s
+      timeout: 15s
+      retries: 3
+      start_period: 30s
+
+  web-app:
+    image: node:16.15-alpine3.14
+    restart: always
+    volumes:
+      - ../web-app:/home/app
+    working_dir: /home/app
+    ports:
+      - 3000:3000
+    environment:
+      API_URL: "http://localhost:5000"
+    depends_on:
+      database:
+        condition: service_healthy
+      price-fetching-service:
+        condition: service_healthy
+    command: sh -c "npm run start"

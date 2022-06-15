@@ -1,0 +1,51 @@
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  margin: 0;
+  font-size: 18px;
+
+  font-family: "Special Elite", cursive !important;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
+}
+
+#album_covers_strip_overlay {
+  width: 100vw;
+  height: 50vh;
+  position: absolute;
+  top: -1px;
+  background: linear-gradient(
+    to bottom,
+    rgba(157, 214, 0, 1) 0%,
+    rgba(92, 168, 21, 0.31) 100%
+  );
+}
+
+.album_covers_background {
+  display: inline-block;
+  animation: slide 30s linear infinite;
+  width: 300vw;
+  height: 50vh;
+  background: url("./music_collage.jpg") repeat-x;
+  animation: slide 120s linear infinite;
+}
+
+@keyframes slide {
+  0% {
+    transform: translate3d(-200vw, 0, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.album_data_field {
+  margin: 10px;
+}

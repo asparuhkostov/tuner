@@ -1,0 +1,12 @@
+{
+  "extends": "@tsconfig/node16/tsconfig.json",
+  "compilerOptions": {
+    "allowJs": true,
+    "outDir": "dist"
+  },
+  "include": ["src/**/*", ".d.ts", "knexfile.js", "migrations"],
+  "exclude": ["node_modules"],
+  "target": "es5",
+  "module": "es6",
+  "moduleResolution": "node"
+}
