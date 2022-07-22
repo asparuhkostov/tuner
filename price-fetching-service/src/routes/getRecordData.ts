@@ -1,4 +1,5 @@
 import axios from "axios";
+import { Request, Response } from "express";
 import { log } from "../utils/index.js";
 
 const DISCOGS_API_KEY =
@@ -6,7 +7,7 @@ const DISCOGS_API_KEY =
 const DISCOGS_API_SECRET =
   process.env.DISCOGS_API_SECRET || "YOUR_DISCOGS_API_SECRET_HERE";
 
-export default async (req, res) => {
+export default async (req: Request, res: Response) => {
   const { item } = req.body;
   let albumData = "";
 

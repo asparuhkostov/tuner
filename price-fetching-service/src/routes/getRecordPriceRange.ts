@@ -1,55 +1,18 @@
-import puppeteer from "puppeteer";
+import puppeteer, { Page } from "puppeteer";
 import querystring from "querystring";
 import { log } from "../utils/index.js";
 
-const vendors = [
-  {
-    name: "Value Your Music",
-    priceSelector: "div.item-basic-info > div > strong",
-    itemUrlSelector: "a.wordwrap",
-    baseSearchUrl: "https://www.valueyourmusic.com/items?q=",
-    pricingPages: {
-      mostExpensive: "&sort=price_desc&utf8=✓",
-      leastExpensive: "&sort=price_asc&utf8=✓",
-    },
-  },
-  {
-    name: "Ebay",
-    priceSelector: "span.s-item__price",
-    itemUrlSelector: "a.s-item__link",
-    baseSearchUrl: "https://www.ebay.co.uk/sch/11233/i.html?_from=R40&_nkw=",
-    pricingPages: {
-      mostExpensive: "&LH_TitleDesc=0&_sop=3",
-      leastExpensive: "&LH_TitleDesc=0&_sop=2",
-    },
-  },
-  {
-    name: "The Records Corner",
-    priceSelector: "span.prod-price.text-xl",
-    itemUrlSelector: "a.prod-title.text-lg",
-    baseSearchUrl: "https://www.therecordscorner.com/catalog?q=",
-    pricingPages: {
-      mostExpensive: "&s=pd",
-      leastExpensive: "&s=pa",
-    },
-  },
-  {
-    name: "Amazon",
-    baseSearchUrl: "https://www.amazon.com/s?k=",
-    pricingPages: {
-      mostExpensive: "&s=price-desc-rank",
-      leastExpensive: "&s=price-asc-rank",
-    },
-  },
-];
+import { Vendor } from "../types";
+import { Request, Response } from "express";
+const vendors = require("../vendors.json");
 
-async function isItemNotAvailable(vendorName, page) {
+async function isItemNotAvailable(vendorName: string, page: Page) {
   switch (vendorName) {
     case "The Records Corner":
       const pageParagraphs = await page.$$("p");
       for (const p of pageParagraphs) {
         const pText = await p.getProperty("textContent");
-        const pTextValue = await pText.jsonValue();
+        const pTextValue: string = await pText.jsonValue();
         if (pTextValue.includes("Съжаляваме")) {
           return true;
         }
@@ -59,13 +22,17 @@ async function isItemNotAvailable(vendorName, page) {
   return false;
 }
 
-async function getGenericVendorPricing(item, vendor, page) {
+async function getGenericVendorPricing(
+  item: string,
+  vendor: Vendor,
+  page: Page
+) {
   const escapedItemName = querystring.escape(item);
   const { mostExpensive, leastExpensive } = vendor.pricingPages;
   const mostExpensiveQuery = `${vendor.baseSearchUrl}${escapedItemName}${mostExpensive}`;
   const leastExpensiveQuery = `${vendor.baseSearchUrl}${escapedItemName}${leastExpensive}`;
 
-  const getPriceAndLink = async (url) => {
+  const getPriceAndLink = async (url: string) => {
     await page.goto(url);
 
     const isItemMissing = await isItemNotAvailable(vendor.name, page);
@@ -74,15 +41,17 @@ async function getGenericVendorPricing(item, vendor, page) {
       return;
     }
 
-    const itemContainer = await page.$(vendor.priceSelector);
-    const itemPrice = await itemContainer.getProperty("textContent");
-    const itemLink = await page.$(vendor.itemUrlSelector);
-    const itemUrl = await itemLink.getProperty("href");
+    if (vendor.priceSelector && vendor.itemUrlSelector) {
+      const itemContainer = await page.$(vendor.priceSelector);
+      const itemPrice = await itemContainer?.getProperty("textContent");
+      const itemLink = await page.$(vendor.itemUrlSelector);
+      const itemUrl = await itemLink?.getProperty("href");
 
-    return {
-      price: await itemPrice.jsonValue(),
-      link: await itemUrl.jsonValue(),
-    };
+      return {
+        price: await itemPrice?.jsonValue(),
+        link: await itemUrl?.jsonValue(),
+      };
+    }
   };
 
   const highestPricedItemData = await getPriceAndLink(mostExpensiveQuery);
@@ -101,43 +70,54 @@ async function getGenericVendorPricing(item, vendor, page) {
   };
 }
 
-async function getValueYourMusicPricing(item, vendor, page) {
+async function getValueYourMusicPricing(
+  item: string,
+  vendor: Vendor,
+  page: Page
+) {
   return getGenericVendorPricing(item, vendor, page);
 }
 
-async function getEbayPricing(item, vendor, page) {
+async function getEbayPricing(item: string, vendor: Vendor, page: Page) {
   return getGenericVendorPricing(item, vendor, page);
 }
 
-async function getTheRecordsCornerPricing(item, vendor, page) {
+async function getTheRecordsCornerPricing(
+  item: string,
+  vendor: Vendor,
+  page: Page
+) {
   return getGenericVendorPricing(item, vendor, page);
 }
 
-async function getAmazonPricing(item, vendor, page) {
+async function getAmazonPricing(item: string, vendor: Vendor, page: Page) {
   const escapedItemName = querystring.escape(item);
   const { mostExpensive, leastExpensive } = vendor.pricingPages;
   const mostExpensiveQuery = `${vendor.baseSearchUrl}${escapedItemName}${mostExpensive}`;
   const leastExpensiveQuery = `${vendor.baseSearchUrl}${escapedItemName}${leastExpensive}`;
 
-  const getPriceAndLink = async (url) => {
+  const getPriceAndLink = async (url: string) => {
     await page.goto(url);
     const itemBaseAmountContainer = await page.$("span.a-price-whole");
-    const itemBaseAmount = await itemBaseAmountContainer.getProperty(
+    const itemBaseAmount = await itemBaseAmountContainer?.getProperty(
       "textContent"
     );
-    const priceBaseAmount = await itemBaseAmount.jsonValue();
+    const priceBaseAmount = await itemBaseAmount?.jsonValue();
     const itemFractionalAmountContainer = await page.$("span.a-price-fraction");
     const itemFractionalAmount =
-      await itemFractionalAmountContainer.getProperty("textContent");
-    const priceFractionalAmount = await itemFractionalAmount.jsonValue();
-    const price = priceBaseAmount + priceFractionalAmount + " USD";
-    const itemLink = await page.$("a.a-link-normal.a-text-normal");
-    const itemUrl = await itemLink.getProperty("href");
+      await itemFractionalAmountContainer?.getProperty("textContent");
+    const priceFractionalAmount: string | undefined =
+      await itemFractionalAmount?.jsonValue();
+    if (priceBaseAmount && priceFractionalAmount) {
+      const price = priceBaseAmount + priceFractionalAmount + " USD";
+      const itemLink = await page.$("a.a-link-normal.a-text-normal");
+      const itemUrl = await itemLink?.getProperty("href");
 
-    return {
-      price,
-      link: await itemUrl.jsonValue(),
-    };
+      return {
+        price,
+        link: await itemUrl?.jsonValue(),
+      };
+    }
   };
 
   const highestPricedItemData = await getPriceAndLink(mostExpensiveQuery);
@@ -145,14 +125,14 @@ async function getAmazonPricing(item, vendor, page) {
 
   return {
     vendor: vendor.name,
-    highestPrice: highestPricedItemData.price,
-    mostExpensiveItemUrl: highestPricedItemData.link,
-    lowestPrice: lowestPricedItemData.price,
-    leastExpensiveItemUrl: lowestPricedItemData.link,
+    highestPrice: highestPricedItemData?.price,
+    mostExpensiveItemUrl: highestPricedItemData?.link,
+    lowestPrice: lowestPricedItemData?.price,
+    leastExpensiveItemUrl: lowestPricedItemData?.link,
   };
 }
 
-async function getVendorPrices(item, vendor, page) {
+async function getVendorPrices(item: string, vendor: Vendor, page: Page) {
   switch (vendor.name) {
     case "Value Your Music":
       return await getValueYourMusicPricing(item, vendor, page);
@@ -182,7 +162,7 @@ async function getPage() {
   return page;
 }
 
-export default async (req, res) => {
+export default async (req: Request, res: Response) => {
   try {
     const { item } = req.body;
     const page = await getPage();
@@ -195,12 +175,16 @@ export default async (req, res) => {
           prices.push(vendorPrices);
         }
       } catch (e) {
-        log.error(e);
+        if (e instanceof Error) {
+          log.error(e.message);
+        }
       }
     }
 
     res.json(prices);
   } catch (e) {
-    log.error(e);
+    if (e instanceof Error) {
+      log.error(e.message);
+    }
   }
 };

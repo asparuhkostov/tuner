@@ -1,0 +1,40 @@
+[
+  {
+    "name": "Value Your Music",
+    "priceSelector": "div.item-basic-info > div > strong",
+    "itemUrlSelector": "a.wordwrap",
+    "baseSearchUrl": "https://www.valueyourmusic.com/items?q=",
+    "pricingPages": {
+      "mostExpensive": "&sort=price_desc&utf8=✓",
+      "leastExpensive": "&sort=price_asc&utf8=✓"
+    }
+  },
+  {
+    "name": "Ebay",
+    "priceSelector": "span.s-item__price",
+    "itemUrlSelector": "a.s-item__link",
+    "baseSearchUrl": "https://www.ebay.co.uk/sch/11233/i.html?_from=R40&_nkw=",
+    "pricingPages": {
+      "mostExpensive": "&LH_TitleDesc=0&_sop=3",
+      "leastExpensive": "&LH_TitleDesc=0&_sop=2"
+    }
+  },
+  {
+    "name": "The Records Corner",
+    "priceSelector": "span.prod-price.text-xl",
+    "itemUrlSelector": "a.prod-title.text-lg",
+    "baseSearchUrl": "https://www.therecordscorner.com/catalog?q=",
+    "pricingPages": {
+      "mostExpensive": "&s=pd",
+      "leastExpensive": "&s=pa"
+    }
+  },
+  {
+    "name": "Amazon",
+    "baseSearchUrl": "https://www.amazon.com/s?k=",
+    "pricingPages": {
+      "mostExpensive": "&s=price-desc-rank",
+      "leastExpensive": "&s=price-asc-rank"
+    }
+  }
+]

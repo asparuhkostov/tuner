@@ -1,39 +1,29 @@
-NOTE: This is in not actively maintained, most of the code was written in 2020 and only somewhat updated in 2022.Typescript support is there, but nothing is really typed yet.
-
-TO-DO:
-
-- Typing
-- GraphQL instead of REST
-- Add an ObjectionJS model for the pricing runs and insert them into DB
-
-# tuner
-
-A web service to automatically fetch information on a vinyl record and scrape several e-commerce vendors for its price.
-
 ![a gif demonstration of the service](service_demo_video.gif)
 
-## Purpose
+# About 💬
 
-To build a good-looking service that potentially leads to saving some \$\$\$ on vinyl record purchases. Built for fun and to test out how fast I can dish out a full service.
+Automatically fetch information and prices for a vinyl record.
 
-## Implementation
+## Integrations 🔌
 
-- Front-end: React for the component & event-handling + Axios for the network requests.
-- Back-end: ExpressJS for route management + Puppeteer for the scraping.
-- Infrastructure: Docker
+- Official api for `Discogs` - to fetch vinyl record data such as name, release data and a link to a cover image.
+- Screenscraping for `Amazon`, `Ebay`, `Value Your Music` and `The Records corner` to get a price range for the queried album.
 
-## Integrations
+## Structure 🏗
 
-- Discogs API - to fetch vinyl record data such as name, release data and a link to a cover.
+- `/price-fetching-service` contains the back-end (ExpressJS) and screen-scraping (Puppeteer) functionality.
+- `/web-app` contains the front-end (React) from which queries about album pricing are sent.
+- `/infrastructure` contains the Docker configuration and a script to set up the database (Postgres).
 
-## Project structure
+## Running 🔼
 
-- `/price-fetching-service` contains the back-end
-- `/web-app` contains the front-end
-- `/docker-setup` contains the docker configuration and a script to set up the database
+A prerequisite for running this is having registered an app with Discogs, so that you have a client secret and client key to use.
 
-## Running
-
-1. `cd docker-setup && docker-compose up database`
-2. `cd scripts && chmod +x setup_database.sh && ./setup_database.sh && cd ..`
+0. Put your Discogs client secret and client key tokens in the `docker-compose.yml` file in the `tuner-price-fetching-service` environment variables section.
+1. `cd infrastructure && docker-compose up database`
+2. `./scripts/setup_database.sh`
 3. `docker-compose up price-fetching-service web-app`
+
+## TO-DO 👷‍♂️:
+
+- Add typing to `web-app`
