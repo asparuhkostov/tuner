@@ -6,7 +6,7 @@ Automatically fetch information and prices for a vinyl record.
 
 ## Integrations 🔌
 
-- Official api for `Discogs` - to fetch vinyl record data such as name, release data and a link to a cover image.
+- Official API for `Discogs` - to fetch album information such as name, release data and a link to a cover image.
 - Screenscraping for `Amazon`, `Ebay`, `Value Your Music` and `The Records corner` to get a price range for the queried album.
 
 ## Structure 🏗
@@ -19,10 +19,8 @@ Automatically fetch information and prices for a vinyl record.
 
 A prerequisite for running this is having registered an app with Discogs, so that you have a client secret and client key to use.
 
-0. Put your Discogs client secret and client key tokens in the `docker-compose.yml` file in the `tuner-price-fetching-service` environment variables section.
-1. `cd infrastructure && docker-compose up database`
-2. `./scripts/setup_database.sh`
-3. `docker-compose up price-fetching-service web-app`
+1. Put your Discogs client secret and client key tokens in the `docker-compose.yml` file in the `tuner-price-fetching-service` environment variables section.
+2. `cd infrastructure && docker-compose up`
 
 ## TO-DO 👷‍♂️:
 
